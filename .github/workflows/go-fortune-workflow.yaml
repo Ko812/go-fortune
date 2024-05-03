@@ -35,7 +35,7 @@ jobs:
         with:
           slack_token: ${{ secrets.SLACKTOKEN }}
           channel_id: ${{ vars.SLACKCHANNEL }}
-          file_path: /home/runner/work/go-fortune/go-fortune/release/v0.3/trivy-report.txt'
+          file_path: /home/runner/work/trivy-report.txt'
           initial_comment: "post by slack-upload-file"
           # thread_ts: 'option'
       # - name: Set up QEMU
