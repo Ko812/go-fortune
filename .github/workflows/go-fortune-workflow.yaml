@@ -23,7 +23,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
-          scan-ref: release/v0.2
+          scan-ref: release/v0.3
           ignore-unfixed: true
           format: 'table'
           output: 'trivy-report.txt'
@@ -41,6 +41,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          build-contexts: /home/runner/work/go-fortune/go-fortune/release/v0.3
           push: true
           tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:latest
       - name: Send custom JSON data to Slack workflow
