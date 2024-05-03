@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{github.ref}}
-          path: /home/runner/work/go-fortune/go-fortune/release/v0.2
+          path: /home/runner/work/go-fortune/go-fortune/release/v0.3
       - name: Run Trivy vulnerability scanner in fs mode
         uses: aquasecurity/trivy-action@master
         with:
@@ -42,7 +42,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: kevin812/go-fortune:latest
+          tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:latest
       - name: Send custom JSON data to Slack workflow
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
