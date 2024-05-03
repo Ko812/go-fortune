@@ -28,7 +28,16 @@ jobs:
           format: 'table'
           output: 'trivy-report.txt'
           severity: 'HIGH'
-          vuln-type: abc
+          vuln-type: os, library
+          list-all-pkgs: true
+      - name: Upload report to Slack
+        uses: MeilCli/slack-upload-file@v4
+        with:
+          slack_token: ${{ secrets.SLACKTOKEN }}
+          channel_id: ${{ variables.SLACKCHANNEL }}
+          file_path: /home/runner/work/go-fortune/go-fortune/release/v0.3/trivy-report.txt'
+          initial_comment: 'post by slack-upload-file'
+          # thread_ts: 'option'
       # - name: Set up QEMU
         # uses: docker/setup-qemu-action@v3
       # - name: Set up Docker Buildx
