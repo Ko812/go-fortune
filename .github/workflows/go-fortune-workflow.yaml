@@ -118,7 +118,7 @@ jobs:
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": "*Git:* https://github.com/ko812/go-fortune"
+                                "text": "*Git:* ${{github.repository}}"
                             }
                         ]
                     },
