@@ -30,6 +30,7 @@ jobs:
           severity: "HIGH"
           vuln-type: os, library
           list-all-pkgs: true
+          scanners: vuln
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
