@@ -43,7 +43,7 @@ jobs:
           context: .
           build-contexts: name=/home/runner/work/go-fortune/go-fortune/release/v0.3
           push: true
-          tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:latest
+          tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:release/v0.3
       - name: Send custom JSON data to Slack workflow
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
