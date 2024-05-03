@@ -40,7 +40,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          file: path=/home/runner/work/go-fortune/go-fortune/release/v0.3/go-fortune/Dockerfile
+          file: path=/home/runner/work/go-fortune/go-fortune/release/v0.3/Dockerfile
           push: true
           tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:v0.3
       - name: Send custom JSON data to Slack workflow
