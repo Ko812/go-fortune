@@ -29,8 +29,8 @@ jobs:
           output: "trivy-report.txt"
           severity: "HIGH"
           vuln-type: os, library
-          list-all-pkgs: true
-          scanners: vuln,secret
+          scanners: vuln,secret,config
+      - run: dir
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
