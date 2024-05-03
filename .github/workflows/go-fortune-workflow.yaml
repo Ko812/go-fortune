@@ -24,13 +24,13 @@ jobs:
         with:
           scan-type: "fs"
           scan-ref: release/v0.3
-          ignore-unfixed: true
+          ignore-unfixed: false
           format: "table"
           output: "trivy-report.txt"
           severity: "HIGH"
           vuln-type: os, library
           list-all-pkgs: true
-          scanners: vuln
+          scanners: vuln,secret
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
