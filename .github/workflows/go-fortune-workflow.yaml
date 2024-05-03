@@ -19,7 +19,6 @@ jobs:
         with:
           ref: ${{github.ref}}
           path: /home/runner/work/go-fortune/go-fortune/release/v0.3
-      - run: pwd
       - name: Run Trivy vulnerability scanner in fs mode
         uses: aquasecurity/trivy-action@master
         with:
@@ -31,7 +30,8 @@ jobs:
           severity: "HIGH"
           vuln-type: os, library
           scanners: vuln,secret,config
-      - run: dir
+      - run: pwd
+      - run: ls
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
