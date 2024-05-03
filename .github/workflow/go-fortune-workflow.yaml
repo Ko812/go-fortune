@@ -8,7 +8,7 @@ on:
 
 jobs:
   # name of your job
-  my-first-job:
+  go-fortune-job:
     # runner
     runs-on: ubuntu-latest
     permissions: write-all
