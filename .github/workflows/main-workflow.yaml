@@ -33,15 +33,17 @@ jobs:
           scan-ref: release/v0.3
           ignore-unfixed: false
           format: "table"
-          output: "trivy-report.txt"
+          output: "trivy-report"
           severity: "HIGH"
           vuln-type: os, library
           scanners: vuln,secret,config
       - id: output-report
         run: |
+          pwd
+          ls
           cd release/v0.3
           ls
-          cat trivy-report.txt
+          cat trivy-report
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities-job
