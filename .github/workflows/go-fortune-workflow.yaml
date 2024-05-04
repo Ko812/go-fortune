@@ -21,6 +21,8 @@ jobs:
         with:
           ref: ${{github.ref}}
           path: /home/runner/work/go-fortune/go-fortune/release/v0.3
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
       - name: Run Trivy vulnerability scanner in fs mode
         uses: aquasecurity/trivy-action@master
         with:
@@ -40,112 +42,121 @@ jobs:
           file_path: "trivy-report.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, reinstalled app"
-          # thread_ts: 'option'
-      # - name: Set up QEMU
-      # uses: docker/setup-qemu-action@v3
-      # - name: Set up Docker Buildx
-      # uses: docker/setup-buildx-action@v3
-      # - name: Login to Docker Hub
-      # uses: docker/login-action@v3
-      # with:
-      # username: ${{ secrets.DOCKERHUBUSERNAME }}
-      # password: ${{ secrets.DOCKERHUBACCESSTOKEN }}
-      # - name: Build and push
-      # uses: docker/build-push-action@v5
-      # with:
-      # file: /home/runner/work/go-fortune/go-fortune/release/v0.3/Dockerfile
-      # push: true
-      # tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:v0.3
-      # - name: Send custom JSON data to Slack workflow
-      # id: slack
-      # uses: slackapi/slack-github-action@v1.26.0
-      # with:
-      # payload: |
-      # {
-      # "text": "Push commit triggered workflow",
-      # "blocks": [
-      # {
-      # "type": "section",
-      # "fields": [
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Ref*\n${{github.ref}}"
-      # },
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Event*\n${{github.sha}}"
-      # }
-      # ]
-      # },
-      # {
-      # "type": "section",
-      # "fields": [
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Actions URL*\nBuild and Push"
-      # },
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Commit*\n${{github.event.head_commit}}"
-      # }
-      # ]
-      # },
-      # {
-      # "type": "section",
-      # "fields": [
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Image build and signed*"
-      # }
-      # ]
-      # },
-      # {
-      # "type": "section",
-      # "fields": [
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Name:* Kevin Oh"
-      # }
-      # ]
-      # },
-      # {
-      # "type": "section",
-      # "fields": [
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Matriculation:* A0023945E"
-      # }
-      # ]
-      # },
-      # {
-      # "type": "section",
-      # "fields": [
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Email:* ohsl265@gmail.com"
-      # }
-      # ]
-      # },
-      # {
-      # "type": "section",
-      # "fields": [
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Git:* ${{github.repository}}"
-      # }
-      # ]
-      # },
-      # {
-      # "type": "section",
-      # "fields": [
-      # {
-      # "type": "mrkdwn",
-      # "text": "*Image:* https://hub.docker/repository/docker/ko812/go-fortune"
-      # }
-      # ]
-      # }
-      # ]
-      # }
-      # env:
-      # SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
-      # SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUBUSERNAME }}
+          password: ${{ secrets.DOCKERHUBACCESSTOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        id: build-and-push
+        with:
+          file: /home/runner/work/go-fortune/go-fortune/release/v0.3/Dockerfile
+          push: true
+          tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:v0.3
+      - name: Sign image with a key
+        run: |
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
+          cosign sign --key env://COSIGN_PRIVATE_KEY env://tag@${DIGEST}
+        env:
+          TAG: ${{ secrets.DOCKERHUBUSERNAME }}/go-fortune
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+      - name: Send custom JSON data to Slack workflow
+        id: slack
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+                "text": "Push commit triggered workflow",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Ref*\n${{github.ref}}"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Event*\n${{github.sha}}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Actions URL*\nBuild and Push"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Commit*\n${{github.event.head_commit.message}}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Image build and signed*"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Name:* Kevin Oh"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Matriculation:* A0023945E"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Email:* ohsl265@gmail.com"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Git:* ${{github.repository}}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Image:* https://hub.docker/repository/docker/ko812/go-fortune"
+                            }
+                        ]
+                    }
+                ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
