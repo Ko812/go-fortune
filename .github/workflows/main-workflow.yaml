@@ -43,7 +43,8 @@ jobs:
           ls
           cd release/v0.3
           ls
-          cat trivy-report.txt
+          cat /home/runner/work/go-fortune/go-fortune/release/v0.3/trivy-report.txt
+          type /home/runner/work/go-fortune/go-fortune/release/v0.3/trivy-report.txt
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities-job
