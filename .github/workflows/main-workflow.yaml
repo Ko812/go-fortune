@@ -8,22 +8,25 @@ on:
 
 jobs:
   # name of your job
-  go-fortune-job:
-    name: Go Fortune Workflow Job
+  scan-vulnerabilities-job:
+    name: Scan Vulnerabilities Job
     # runner
     runs-on: ubuntu-latest
     permissions: write-all
     if: "!contains(github.event.head_commit.message, '#NORUN')"
     # steps in this job
+    outputs:
+      output1: ${{ steps.Scan-step.outputs.output }}
+      output2: ${{ steps.Scan-step.outcome }}
     steps:
       - name: Checkout
+        id: Checkout-step
         uses: actions/checkout@v3
         with:
           ref: ${{github.ref}}
           path: /home/runner/work/go-fortune/go-fortune/release/v0.3
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.5.0
-      - name: Run Trivy vulnerability scanner in fs mode
+      - name: Scan Vulnerability with Trivy (fs mode)
+        id: Scan-step
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "fs"
@@ -34,6 +37,64 @@ jobs:
           severity: "CRITICAL"
           vuln-type: os, library
           scanners: vuln,secret,config
+
+  Start-Reporting-Vulnerabilities:
+    runs-on: ubuntu-latest
+    needs: scan-vulnerabilities-job
+    env:
+      TRIVY_REPORT: ${{needs.scan-vulnerabilities-job.outputs.output1}}
+    if: $TRIVY_REPORT != ""
+    steps:
+      - name: Show Trivy Report
+        run: echo "$TRIVY_REPORT"
+      - name: Send Report to Slack Dipsa58 channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+                "text": "Push commit triggered workflow",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Ref*\n${{github.ref}}"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Event*\n${{github.event_name}}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Actions URL*\nBuild and Push"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Commit*\n${{github.sha}}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*\nFailed trivy scan, see uploaded report"
+                            },
+                        ]
+                    }
+                ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
@@ -42,6 +103,13 @@ jobs:
           file_path: "trivy-report.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, reinstalled app"
+  Build-Push-Sign-And-Notify:
+    runs-on: ubuntu-latest
+    needs: scan-vulnerabilities-job
+    env:
+      TRIVY_REPORT: ${{needs.scan-vulnerabilities-job.outputs.output1}}
+    if: $TRIVY_REPORT == ""
+    steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -58,6 +126,8 @@ jobs:
           file: /home/runner/work/go-fortune/go-fortune/release/v0.3/Dockerfile
           push: true
           tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:v0.3
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
       - name: Sign image with a key
         run: |
           cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
