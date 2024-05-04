@@ -16,7 +16,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, '#NORUN')"
     # steps in this job
     outputs:
-      output1: ${{ steps.Scan-step.outputs.output }}
+      output1: ${{ steps.output-report.outputs.output }}
       output2: ${{ steps.Scan-step.outcome }}
     steps:
       - name: Checkout
@@ -37,6 +37,10 @@ jobs:
           severity: "HIGH"
           vuln-type: os, library
           scanners: vuln,secret,config
+      - id: output-report
+        run: type trivy-report.txt
+      - id: output-report-2
+        run: cat trivy-report.txt
 
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
