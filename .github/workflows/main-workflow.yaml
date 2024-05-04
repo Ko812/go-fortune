@@ -38,9 +38,12 @@ jobs:
           vuln-type: os, library
           scanners: vuln,secret,config
       - id: output-report
-        run: type /home/runner/work/go-fortune/go-fortune/release/v0.3/trivy-report.txt
-      - id: output-report-2
-        run: cat /home/runner/work/go-fortune/go-fortune/release/v0.3/trivy-report.txt
+        run: |
+          pwd
+          ls
+          echo trivy-report.txt
+          type trivy-report.txt
+          dir
 
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
