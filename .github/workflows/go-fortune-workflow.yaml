@@ -39,7 +39,7 @@ jobs:
           channel_id: ${{ secrets.SLACKCHANNELID }}
           file_path: "trivy-report.txt"
           file_type: "text"
-          initial_comment: "post by slack-upload-file"
+          initial_comment: "Post by slack-upload-file, added scope"
           # thread_ts: 'option'
       # - name: Set up QEMU
       # uses: docker/setup-qemu-action@v3
