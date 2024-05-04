@@ -106,6 +106,7 @@ jobs:
     needs: scan-vulnerabilities-job
     if: ${{needs.scan-vulnerabilities-job.outputs.output1}} == ""
     steps:
+      - run: echo ${{needs.scan-vulnerabilities-job.outputs.output1}}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
