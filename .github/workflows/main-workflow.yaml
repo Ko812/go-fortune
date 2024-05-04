@@ -40,8 +40,9 @@ jobs:
       - id: output-report
         run: |
           pwd
+          cd release
           ls
-          cd release/v0.3
+          cd v0.3
           ls
           cat trivy-report
   Start-Reporting-Vulnerabilities:
