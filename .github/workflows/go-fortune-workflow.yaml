@@ -12,6 +12,7 @@ jobs:
     # runner
     runs-on: ubuntu-latest
     permissions: write-all
+    if: !contains(github.event.head_commit.message , '#NORUN')
     # steps in this job
     steps:
       - name: Checkout
@@ -30,14 +31,13 @@ jobs:
           severity: "HIGH"
           vuln-type: os, library
           scanners: vuln,secret,config
-      - run: pwd
-      - run: ls
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
           slack_token: ${{ secrets.SLACKTOKEN }}
-          channel_id: ${{ vars.SLACKCHANNEL }}
-          file_path: trivy-report.txt
+          channel_id: ${{ secret.SLACKCHANNELID }}
+          file_path: "trivy-report.txt"
+          file_type: "text"
           initial_comment: "post by slack-upload-file"
           # thread_ts: 'option'
       # - name: Set up QEMU
