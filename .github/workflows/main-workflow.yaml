@@ -33,7 +33,7 @@ jobs:
           scan-ref: release/v0.3
           ignore-unfixed: false
           format: "table"
-          output: "trivy-report"
+          output: trivy-report.txt
           severity: "HIGH"
           vuln-type: os, library
           scanners: vuln,secret,config
