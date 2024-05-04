@@ -41,10 +41,9 @@ jobs:
         run: |
           pwd
           ls
-          echo trivy-report.txt
+          cd release/v0.3
+          ls
           type trivy-report.txt
-          dir
-
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities-job
