@@ -31,7 +31,7 @@ jobs:
         id: run-trivy
         run: |
           cd release/v0.3
-          trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt .
+          trivy fs --format table --scanners vuln,secret,misconfig --severity CRITICAL --output trivy.txt .
           if [ -s trivy.txt ]; then
             echo "vunerability_found=true" >> $GITHUB_OUTPUT
             git config --local user.email "action@github.com"
@@ -113,7 +113,7 @@ jobs:
           channel_id: ${{ secrets.SLACKCHANNELID }}
           file_path: "${{github.workspace}}/${{github.ref_name}}/trivy.txt"
           file_type: "text"
-          initial_comment: "Post by slack-upload-file, reinstalled app"
+          initial_comment: "Post by slack-upload-file, trivy scan vulnerabilities report"
   Build-Push-Sign-And-Notify:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
