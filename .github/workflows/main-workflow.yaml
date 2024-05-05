@@ -32,11 +32,24 @@ jobs:
           scan-type: fs
           scan-ref: release/v0.3
           hide-progress: true
-          format: "table"
-          output: "trivyreport.txt"
+          format: table
+          output: trivy.txt
           severity: "HIGH"
           vuln-type: os, library
           scanners: vuln,secret,misconfig
+      - name: Publish Trivy Output to Summary
+        run: |
+          if [[ -s trivy.txt ]]; then
+            {
+                echo "### Security Output"
+                echo "<details><summary>Click to expand</summary>"
+                echo ""
+                echo '```terraform'
+                cat trivy.txt
+                echo '```'
+                echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
       # - name: push output to github_output
       # id: output-report
       # shell: pwsh
