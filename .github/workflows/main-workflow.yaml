@@ -47,7 +47,7 @@ jobs:
           trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
           ls
           my_var = grep 'Total: [0-9]* (HIGH: [0-9]*)' trivy.txt
-          echo "scan_result=$my_var" >> $env:GITHUB_OUTPUT
+          echo "scan_result=$env:my_var" >> $env:GITHUB_OUTPUT
       # - name: push output to github_output
       # id: output-report
       # shell: pwsh
