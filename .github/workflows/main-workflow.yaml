@@ -31,12 +31,11 @@ jobs:
         with:
           scan-type: "fs"
           scan-ref: release/v0.3
-          ignore-unfixed: false
           format: "table"
           output: "trivyreport.txt"
           severity: "HIGH"
           vuln-type: os, library
-          scanners: vuln,secret,config
+          scanners: vuln,secret,misconfig
       - name: push output to github_output
         id: output-report
         shell: pwsh
@@ -45,7 +44,7 @@ jobs:
           ls
           cd release/v0.3
           ls
-          cat trivyreport.txt
+          echo ${{github.workspace}}
       - name: test output
         run: echo ${{ steps.output-report.outputs.tr }}
   Start-Reporting-Vulnerabilities:
