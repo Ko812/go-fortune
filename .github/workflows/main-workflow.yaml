@@ -24,13 +24,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{github.ref}}
-          path: /home/runner/work/go-fortune/go-fortune/release/v0.3
+          path: D:\a\go-fortune\go-fortune\release\v0.3
       - name: Scan Vulnerability with Trivy (fs mode)
         id: Scan-step
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
-          scan-ref: release/v0.3
+          scan-ref: release\v0.3
           hide-progress: true
           format: table
           output: trivy.txt
@@ -39,7 +39,7 @@ jobs:
           scanners: vuln,secret,misconfig
       - name: Publish Trivy Output to Summary
         run: |
-          cd release/v0.3
+          cd release\v0.3
           ls
           echo "output=$(type trivy.txt)" >> $GITHUB_OUTPUT
       # - name: push output to github_output
