@@ -39,6 +39,7 @@ jobs:
           scanners: vuln,secret,misconfig
       - name: Publish Trivy Output to Summary
         run: |
+          cd release/v0.3
           if [[ -s trivy.txt ]]; then
             {
                 echo "### Security Output"
