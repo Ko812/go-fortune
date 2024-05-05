@@ -46,7 +46,8 @@ jobs:
           ls
           trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
           ls
-          cat trivy.txt
+          my_var = $(cat trivy.txt)
+          my_var
       # - name: push output to github_output
       # id: output-report
       # shell: pwsh
