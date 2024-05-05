@@ -25,62 +25,24 @@ jobs:
         with:
           ref: ${{github.ref}}
           path: /home/runner/work/go-fortune/go-fortune/release/v0.3
-      - name: Scan Vulnerability with Trivy (fs mode)
-        id: Scan-step
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          scan-ref: release/v0.3
-          format: "table"
-          output: "trivyreport.txt"
-          severity: "HIGH"
-          vuln-type: os, library
-          scanners: vuln,secret,misconfig
+      #   - name: Scan Vulnerability with Trivy (fs mode)
+      #     id: Scan-step
+      #     uses: aquasecurity/trivy-action@master
+      #     with:
+      #       scan-type: "fs"
+      #       scan-ref: release/v0.3
+      #       format: "table"
+      #       output: "trivyreport.txt"
+      #       severity: "HIGH"
+      #       vuln-type: os, library
+      #       scanners: vuln,secret,misconfig
       - name: push output to github_output
         id: output-report
-        shell: pwsh
-        working-directory: ${{ github.workspace }}
+        # shell: pwsh
+        # working-directory: ${{ github.workspace }}
         run: |
-          echo action_path:${{github.action_path}}
-          echo action:${{github.action}}
-          echo action_repository:${{github.action_repository}}
-          echo action_status:${{github.action_status}}
-          echo action_ref:${{github.action_ref}}
-          echo actor:${{github.actor}}
-          echo actor_id:${{github.actor_id}}
-          echo api_url:${{github.api_url}}
-          echo base_ref:${{github.base_ref}}
-          echo env:${{github.env}}
-          echo event:${{github.event}}
-          echo event_name:${{github.event_name}}
-          echo head_ref:${{github.head_ref}}
-          echo event_path:${{github.event_path}}
-          echo graphql_url:${{github.graphql_url}}
-          echo job:${{github.job}}
-          echo job_workflow_sha:${{github.job_workflow_sha}}
-          echo path:${{github.path}}
-          echo ref:${{github.ref}}
-          echo ref_name:${{github.ref_name}}
-          echo ref_protected:${{github.ref_protected}}
-          echo ref_type:${{github.ref_type}}
-          echo repository:${{github.repository}}
-          echo repository_id:${{github.repository_id}}
-          echo repository_owner:${{github.repository_owner}}
-          echo repository_owner_id:${{github.repository_owner_id}}
-          echo repositoryUrl:${{github.repositoryUrl}}
-          echo retention_days:${{github.retention_days}}
-          echo run_attempt:${{github.run_attempt}}
-          echo run_id:${{github.run_id}}
-          echo run_number:${{github.run_number}}
-          echo secret_source:${{github.secret_source}}
-          echo server_url:${{github.server_url}}
-          echo sha:${{github.sha}}
-          echo token:${{github.token}}
-          echo triggering_actor:${{github.triggering_actor}}
-          echo workflow:${{github.workflow}}
-          echo workflow_ref:${{github.workflow_ref}}
-          echo workflow_sha:${{github.workflow_sha}}
-          echo workflow:${{github.workspace}}
+          "trivy fs --severity HIGH --vuln-type os,library --scanners vuln,secret --format table --output trivy-report.txt ."
+        # cat trivy-report.txt
       - name: test output
         run: echo ${{ steps.output-report.outputs.tr }}
   Start-Reporting-Vulnerabilities:
