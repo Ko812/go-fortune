@@ -16,8 +16,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, '#NORUN')"
     # steps in this job
     outputs:
-      output1: ${{ steps.output-report.outputs.tr }}
-      output2: ${{ steps.Scan-step.outcome }}
+      output1: ${{ steps.run-trivy.outputs.output }}
     steps:
       - name: Checkout
         id: Checkout-step
@@ -41,11 +40,12 @@ jobs:
         #       vuln-type: os, library
         #       scanners: vuln,secret,misconfig
       - name: Manual run trivy
+        id: run-trivy
         run: |
           pwd
           ls
           trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
-          cat trivy.txt
+          echo "output=$(cat trivy.txt)" >> $GITHUB_OUTPUT
       # - name: push output to github_output
       # id: output-report
       # shell: pwsh
@@ -57,58 +57,58 @@ jobs:
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
-    if: false # ${{needs.scan-vulnerabilities-job.outputs.output1}} != ''
+    if: true # ${{needs.scan-vulnerabilities-job.outputs.output1}} != ''
     steps:
       - run: echo ${{needs.scan-vulnerabilities-job.outputs.output1}}
-      - name: Send Report to Slack Dipsa58 channel
-        id: slack
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-                "text": "Push commit triggered workflow",
-                "blocks": [
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Ref*\n${{github.ref}}"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Event*\n${{github.event_name}}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Actions URL*\nBuild and Push"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Commit*\n${{github.sha}}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*\nFailed trivy scan, see uploaded report"
-                            },
-                        ]
-                    }
-                ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-      - name: Upload report to Slack
+        #   - name: Send Report to Slack Dipsa58 channel
+        #     id: slack
+        #     uses: slackapi/slack-github-action@v1.26.0
+        #     with:
+        #       payload: |
+        #         {
+        #             "text": "Push commit triggered workflow",
+        #             "blocks": [
+        #                 {
+        #                     "type": "section",
+        #                     "fields": [
+        #                         {
+        #                             "type": "mrkdwn",
+        #                             "text": "*Ref*\n${{github.ref}}"
+        #                         },
+        #                         {
+        #                             "type": "mrkdwn",
+        #                             "text": "*Event*\n${{github.event_name}}"
+        #                         }
+        #                     ]
+        #                 },
+        #                 {
+        #                     "type": "section",
+        #                     "fields": [
+        #                         {
+        #                             "type": "mrkdwn",
+        #                             "text": "*Actions URL*\nBuild and Push"
+        #                         },
+        #                         {
+        #                             "type": "mrkdwn",
+        #                             "text": "*Commit*\n${{github.sha}}"
+        #                         }
+        #                     ]
+        #                 },
+        #                 {
+        #                     "type": "section",
+        #                     "fields": [
+        #                         {
+        #                             "type": "mrkdwn",
+        #                             "text": "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*\nFailed trivy scan, see uploaded report"
+        #                         },
+        #                     ]
+        #                 }
+        #             ]
+        #         }
+        #     env:
+        #       SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
+        #       SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        #   - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
           slack_token: ${{ secrets.SLACKTOKEN }}
