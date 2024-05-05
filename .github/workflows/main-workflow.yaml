@@ -16,7 +16,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, '#NORUN')"
     # steps in this job
     outputs:
-      output1: ${{ steps.run-trivy.outputs.scan_result }}
+      VunerabilityFound: ${{ steps.run-trivy.outputs.vunerability_found }}
     steps:
       - name: Checkout
         id: Checkout-step
@@ -27,41 +27,20 @@ jobs:
       - name: Install Trivy
         run: |
           brew install trivy
-        #   - name: Scan Vulnerability with Trivy (fs mode)
-        #     id: Scan-step
-        #     uses: aquasecurity/trivy-action@master
-        #     with:
-        #       scan-type: fs
-        #       scan-ref: release/v0.3
-        #       hide-progress: true
-        #       format: table
-        #       output: trivy.txt
-        #       severity: "HIGH"
-        #       vuln-type: os, library
-        #       scanners: vuln,secret,misconfig
       - name: Manual run trivy
         id: run-trivy
         run: |
-          pwd
-          ls
           trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
-          ls
-          [ -s trivy.txt ] || echo "scan_result=no_vunerability_found" >> $GITHUB_OUTPUT
-          [ -s trivy.txt ] && echo "scan_result=vunerability_found" >> $GITHUB_OUTPUT
-      # - name: push output to github_output
-      # id: output-report
-      # shell: pwsh
-      # working-directory: ${{ github.workspace }}
-      # run: |
-      # cat trivy-report.txt
+          [ -s trivy.txt ] || echo "vunerability_found=false" >> $GITHUB_OUTPUT
+          [ -s trivy.txt ] && echo "vunerability_found=true" >> $GITHUB_OUTPUT
       - name: test output
-        run: echo "${{ steps.run-trivy.outputs.scan_result }}"
+        run: echo "${{ steps.run-trivy.outputs.vunerability_found }}"
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
-    if: false # ${{needs.scan-vulnerabilities.outputs.output1}} != ''
+    if: ${{needs.scan-vulnerabilities.outputs.VunerabilityFound}}
     steps:
-      - run: echo ${{needs.scan-vulnerabilities.outputs.output1}}
+      - run: echo ${{needs.scan-vulnerabilities.outputs.VunerabilityFound}}
         #   - name: Send Report to Slack Dipsa58 channel
         #     id: slack
         #     uses: slackapi/slack-github-action@v1.26.0
@@ -121,126 +100,126 @@ jobs:
   Build-Push-Sign-And-Notify:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
-    if: false # ${{needs.scan-vulnerabilities-job.outputs.output1}} == ''
+    if: ${{needs.scan-vulnerabilities.outputs.VunerabilityFound}}
     steps:
-      - run: echo ${{needs.scan-vulnerabilities.outputs.output1}}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUBUSERNAME }}
-          password: ${{ secrets.DOCKERHUBACCESSTOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        id: build-and-push
-        with:
-          file: /home/runner/work/go-fortune/go-fortune/release/v0.3/Dockerfile
-          push: true
-          tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:v0.3
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.5.0
-      - name: Sign image with a key
-        run: |
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
-          cosign sign --key env://COSIGN_PRIVATE_KEY env://tag@${DIGEST}
-        env:
-          TAG: ${{ secrets.DOCKERHUBUSERNAME }}/go-fortune
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      - name: Send custom JSON data to Slack workflow
-        id: slack
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-                "text": "Push commit triggered workflow",
-                "blocks": [
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Ref*\n${{github.ref}}"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Event*\n${{github.sha}}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Actions URL*\nBuild and Push"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Commit*\n${{github.event.head_commit.message}}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Image build and signed*"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Name:* Kevin Oh"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Matriculation:* A0023945E"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Email:* ohsl265@gmail.com"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Git:* ${{github.repository}}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Image:* https://hub.docker/repository/docker/ko812/go-fortune"
-                            }
-                        ]
-                    }
-                ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - run: echo ${{needs.scan-vulnerabilities.outputs.VunerabilityFound}}
+    #   - name: Set up QEMU
+    #     uses: docker/setup-qemu-action@v3
+    #   - name: Set up Docker Buildx
+    #     uses: docker/setup-buildx-action@v3
+    #   - name: Login to Docker Hub
+    #     uses: docker/login-action@v3
+    #     with:
+    #       username: ${{ secrets.DOCKERHUBUSERNAME }}
+    #       password: ${{ secrets.DOCKERHUBACCESSTOKEN }}
+    #   - name: Build and push
+    #     uses: docker/build-push-action@v5
+    #     id: build-and-push
+    #     with:
+    #       file: /home/runner/work/go-fortune/go-fortune/release/v0.3/Dockerfile
+    #       push: true
+    #       tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:v0.3
+    #   - name: Install Cosign
+    #     uses: sigstore/cosign-installer@v3.5.0
+    #   - name: Sign image with a key
+    #     run: |
+    #       cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
+    #       cosign sign --key env://COSIGN_PRIVATE_KEY env://tag@${DIGEST}
+    #     env:
+    #       TAG: ${{ secrets.DOCKERHUBUSERNAME }}/go-fortune
+    #       COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+    #       COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+    #       DIGEST: ${{ steps.build-and-push.outputs.digest }}
+    #   - name: Send custom JSON data to Slack workflow
+    #     id: slack
+    #     uses: slackapi/slack-github-action@v1.26.0
+    #     with:
+    #       payload: |
+    #         {
+    #             "text": "Push commit triggered workflow",
+    #             "blocks": [
+    #                 {
+    #                     "type": "section",
+    #                     "fields": [
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Ref*\n${{github.ref}}"
+    #                         },
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Event*\n${{github.sha}}"
+    #                         }
+    #                     ]
+    #                 },
+    #                 {
+    #                     "type": "section",
+    #                     "fields": [
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Actions URL*\nBuild and Push"
+    #                         },
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Commit*\n${{github.event.head_commit.message}}"
+    #                         }
+    #                     ]
+    #                 },
+    #                 {
+    #                     "type": "section",
+    #                     "fields": [
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Image build and signed*"
+    #                         }
+    #                     ]
+    #                 },
+    #                 {
+    #                     "type": "section",
+    #                     "fields": [
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Name:* Kevin Oh"
+    #                         }
+    #                     ]
+    #                 },
+    #                 {
+    #                     "type": "section",
+    #                     "fields": [
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Matriculation:* A0023945E"
+    #                         }
+    #                     ]
+    #                 },
+    #                 {
+    #                     "type": "section",
+    #                     "fields": [
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Email:* ohsl265@gmail.com"
+    #                         }
+    #                     ]
+    #                 },
+    #                 {
+    #                     "type": "section",
+    #                     "fields": [
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Git:* ${{github.repository}}"
+    #                         }
+    #                     ]
+    #                 },
+    #                 {
+    #                     "type": "section",
+    #                     "fields": [
+    #                         {
+    #                             "type": "mrkdwn",
+    #                             "text": "*Image:* https://hub.docker/repository/docker/ko812/go-fortune"
+    #                         }
+    #                     ]
+    #                 }
+    #             ]
+    #         }
+    #     env:
+    #       SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
+    #       SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
