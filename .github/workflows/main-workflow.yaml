@@ -33,18 +33,15 @@ jobs:
           scan-ref: release/v0.3
           ignore-unfixed: false
           format: "table"
-          output: "trivy.report.txt"
+          output: "trivyreport.txt"
           severity: "HIGH"
           vuln-type: os, library
           scanners: vuln,secret,config
       - name: push output to github_output
         id: output-report
         run: |
-          pwd
-          ls
-          cd release/v0.3
-          ls
-          echo "tr=hello" >> $GITHUB_OUTPUT
+          $content = Get-Content -Path /home/runner/work/go-fortune/go-fortune/release/v0.3/trivyreport.txt -Raw
+          echo "tr=$content" >> $GITHUB_OUTPUT
       - name: test output
         run: echo ${{ steps.output-report.outputs.tr }}
   Start-Reporting-Vulnerabilities:
