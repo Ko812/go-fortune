@@ -144,9 +144,9 @@ jobs:
         uses: sigstore/cosign-installer@v3.5.0
       - name: Sign image with a key
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY env://tag@${DIGEST}
+          cosign sign --key env://COSIGN_PRIVATE_KEY env://TAG
         env:
-          TAG: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:${{github.sha}}
+          TAG: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune@${{ steps.build-and-push.outputs.digest }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
