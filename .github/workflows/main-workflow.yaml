@@ -32,9 +32,12 @@ jobs:
         run: |
           trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
           if [ -s trivy.txt ]; then
-            echo "vunerability_found=false" >> $GITHUB_OUTPUT
-          else 
+          {
+            cat trivy.txt
             echo "vunerability_found=true" >> $GITHUB_OUTPUT
+          }
+          else 
+            echo "vunerability_found=false" >> $GITHUB_OUTPUT
           fi
       - name: test output
         run: echo "${{ steps.run-trivy.outputs.vunerability_found }}"
