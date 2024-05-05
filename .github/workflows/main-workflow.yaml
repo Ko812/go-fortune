@@ -50,6 +50,12 @@ jobs:
     needs: scan-vulnerabilities
     if: needs.scan-vulnerabilities.outputs.VunerabilityFound
     steps:
+      - name: Checkout
+        id: Checkout-step
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.ref}}
+          path: ${{github.workspace}}/${{github.ref_name}}
       - name: Send Report to Slack Dipsa58 channel
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
@@ -99,12 +105,6 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-      - name: Checkout
-        id: Checkout-step
-        uses: actions/checkout@v3
-        with:
-          ref: ${{github.ref}}
-          path: ${{github.workspace}}/${{github.ref_name}}
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
@@ -118,6 +118,12 @@ jobs:
     needs: scan-vulnerabilities
     if: needs.scan-vulnerabilities.outputs.NoVulnerabilityFound
     steps:
+      - name: Checkout
+        id: Checkout-step
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.ref}}
+          path: ${{github.workspace}}/${{github.ref_name}}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
