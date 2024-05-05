@@ -92,12 +92,18 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - run: |
+          pwd
+          ls
+          cd release/v0.3
+          ls
+
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
           slack_token: ${{ secrets.SLACKTOKEN }}
           channel_id: ${{ secrets.SLACKCHANNELID }}
-          file_path: "trivy.txt"
+          file_path: "${{github.workspace}}/${{github.ref_name}}/trivy.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, reinstalled app"
   Build-Push-Sign-And-Notify:
