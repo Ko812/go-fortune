@@ -30,7 +30,7 @@ jobs:
       - name: Manual run trivy scan job
         id: run-trivy
         run: |
-          cd release/v0.3
+          cd $${{github.ref_name}}
           trivy fs --format table --scanners vuln,secret,misconfig --severity CRITICAL --output trivy.txt .
           if [ -s trivy.txt ]; then
             echo "vunerability_found=true" >> $GITHUB_OUTPUT
@@ -132,9 +132,9 @@ jobs:
         uses: docker/build-push-action@v5
         id: build-and-push
         with:
-          file: /home/runner/work/go-fortune/go-fortune/release/v0.3/Dockerfile
+          file: ${{github.workspace}}/${{github.ref_name}}/Dockerfile
           push: true
-          tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:v0.3
+          tags: ${{secrets.DOCKERHUBUSERNAME}}/go-fortune:${{github.ref_name}}
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
       - name: Sign image with a key
