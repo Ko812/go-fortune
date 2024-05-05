@@ -45,8 +45,7 @@ jobs:
           ls
           cd release/v0.3
           ls
-          $content = Get-Content -Path /home/runner/work/go-fortune/go-fortune/release/v0.3/fortune.txt -Raw
-          echo "tr=$content" >> $GITHUB_OUTPUT
+          cat fortune.txt
       - name: test output
         run: echo ${{ steps.output-report.outputs.tr }}
   Start-Reporting-Vulnerabilities:
