@@ -31,16 +31,19 @@ jobs:
         id: run-trivy
         run: |
           trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
-          [ -s trivy.txt ] || echo "vunerability_found=false" >> $GITHUB_OUTPUT
-          [ -s trivy.txt ] && echo "vunerability_found=true" >> $GITHUB_OUTPUT
+          if [ -s trivy.txt ]; then
+            echo "vunerability_found=false" >> $GITHUB_OUTPUT
+          else 
+            echo "vunerability_found=true" >> $GITHUB_OUTPUT
+          fi
       - name: test output
         run: echo "${{ steps.run-trivy.outputs.vunerability_found }}"
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
-    if: ${{needs.scan-vulnerabilities.outputs.VunerabilityFound}}
+    if: needs.scan-vulnerabilities.outputs.VunerabilityFound
     steps:
-      - run: echo "Some vulnerabilities found."
+      - run: echo "Some vulnerabilities found. ${{ needs.scan-vulnerabilities.outputs.VunerabilityFound }}"
         #   - name: Send Report to Slack Dipsa58 channel
         #     id: slack
         #     uses: slackapi/slack-github-action@v1.26.0
@@ -100,9 +103,9 @@ jobs:
   Build-Push-Sign-And-Notify:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
-    if: "!${{needs.scan-vulnerabilities.outputs.VunerabilityFound}}"
+    if: !needs.scan-vulnerabilities.outputs.VunerabilityFound
     steps:
-      - run: echo "No vunerability found."
+      - run: echo "No vunerability found. ${{needs.scan-vulnerabilities.outputs.VunerabilityFound}}"
     #   - name: Set up QEMU
     #     uses: docker/setup-qemu-action@v3
     #   - name: Set up Docker Buildx
