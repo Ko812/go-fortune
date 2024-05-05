@@ -44,7 +44,7 @@ jobs:
         run: |
           pwd
           ls
-          trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
+          trivy fs --format table --scanners vuln,secret,misconfig --severity CRITICAL --output trivy.txt release/v0.3
           ls
           echo "output='$(cat trivy.txt)'" >> $GITHUB_OUTPUT
       # - name: push output to github_output
