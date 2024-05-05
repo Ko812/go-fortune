@@ -44,7 +44,8 @@ jobs:
         run: |
           pwd
           ls
-          trivy fs
+          trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
+          cat trivy.txt
       # - name: push output to github_output
       # id: output-report
       # shell: pwsh
