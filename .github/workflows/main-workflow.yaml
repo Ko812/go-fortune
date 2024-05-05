@@ -39,7 +39,12 @@ jobs:
           scanners: vuln,secret,config
       - name: push output to github_output
         id: output-report
+        shell: pwsh
+        working-directory: ${{ github.workspace }}
         run: |
+          ls
+          cd release/v0.3
+          ls
           $content = Get-Content -Path /home/runner/work/go-fortune/go-fortune/release/v0.3/trivyreport.txt -Raw
           echo "tr=$content" >> $GITHUB_OUTPUT
       - name: test output
