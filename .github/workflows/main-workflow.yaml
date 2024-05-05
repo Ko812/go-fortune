@@ -97,7 +97,7 @@ jobs:
         with:
           slack_token: ${{ secrets.SLACKTOKEN }}
           channel_id: ${{ secrets.SLACKCHANNELID }}
-          file_path: "trivy-report.txt"
+          file_path: "trivy.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, reinstalled app"
   Build-Push-Sign-And-Notify:
