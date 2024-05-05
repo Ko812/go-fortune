@@ -47,47 +47,48 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
         with:
+          payload-file-path-parsed: false
           payload: |
             {
-                    "text": "Push commit triggered workflow",
-                    "blocks": [
-                        {
-                            "type": "section",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Ref*\n${{github.ref}}"
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Event*\n${{github.event_name}}"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "section",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Actions URL*\nBuild and Push"
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Commit*\n${{github.sha}}"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "section",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*\nFailed trivy scan, see uploaded report"
-                                },
-                            ]
-                        }
-                    ]
-                }
+                "text": "Push commit triggered workflow",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Ref*\n${{github.ref}}"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Event*\n${{github.event_name}}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Actions URL*\nBuild and Push"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Commit*\n${{github.sha}}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*\nFailed trivy scan, see uploaded report"
+                            },
+                        ]
+                    }
+                ]
+            }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
@@ -135,6 +136,7 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
         with:
+          payload-file-path-parsed: false
           payload: |
             {
                 "text": "Push commit triggered workflow",
