@@ -46,7 +46,7 @@ jobs:
           ls
           trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt release/v0.3
           ls
-          grep "(HIGH: *)" trivy.txt
+          grep "(HIGH: " trivy.txt
       # - name: push output to github_output
       # id: output-report
       # shell: pwsh
