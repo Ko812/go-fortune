@@ -45,7 +45,7 @@ jobs:
           ls
           cd release/v0.3
           ls
-          cat fortune.txt
+          cat trivyreport.txt
       - name: test output
         run: echo ${{ steps.output-report.outputs.tr }}
   Start-Reporting-Vulnerabilities:
