@@ -32,7 +32,7 @@ jobs:
         id: run-trivy
         run: |
           cd ${{github.ref_name}}
-          trivy fs --format table --scanners vuln,secret,misconfig --severity CRITICAL --output trivy.txt .
+          trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt .
           if [ -s trivy.txt ]; then
             echo "vunerability_found=true" >> $GITHUB_OUTPUT
             git config --local user.email "action@github.com"
