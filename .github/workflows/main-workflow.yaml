@@ -103,7 +103,7 @@ jobs:
   Build-Push-Sign-And-Notify:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
-    if: !needs.scan-vulnerabilities.outputs.VunerabilityFound
+    if: "!needs.scan-vulnerabilities.outputs.VunerabilityFound"
     steps:
       - run: echo "No vunerability found. ${{needs.scan-vulnerabilities.outputs.VunerabilityFound}}"
     #   - name: Set up QEMU
