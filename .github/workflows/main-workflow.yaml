@@ -25,23 +25,30 @@ jobs:
         with:
           ref: ${{github.ref}}
           path: /Users/runner/work/go-fortune/go-fortune/release/v0.3
-      - name: Scan Vulnerability with Trivy (fs mode)
-        id: Scan-step
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          scan-ref: release/v0.3
-          hide-progress: true
-          format: table
-          output: trivy.txt
-          severity: "HIGH"
-          vuln-type: os, library
-          scanners: vuln,secret,misconfig
-      - name: Publish Trivy Output to Summary
+      - name: Install Trivy
         run: |
-          cd release/v0.3
+          sudo apt-get install wget apt-transport-https gnupg
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+        #   - name: Scan Vulnerability with Trivy (fs mode)
+        #     id: Scan-step
+        #     uses: aquasecurity/trivy-action@master
+        #     with:
+        #       scan-type: fs
+        #       scan-ref: release/v0.3
+        #       hide-progress: true
+        #       format: table
+        #       output: trivy.txt
+        #       severity: "HIGH"
+        #       vuln-type: os, library
+        #       scanners: vuln,secret,misconfig
+      - name: Manual run trivy
+        run: |
+          pwd
           ls
-          echo "output=$(type trivy.txt)" >> $GITHUB_OUTPUT
+          trivy fs
       # - name: push output to github_output
       # id: output-report
       # shell: pwsh
