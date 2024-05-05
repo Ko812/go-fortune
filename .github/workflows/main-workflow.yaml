@@ -51,6 +51,43 @@ jobs:
           payload: |
             {
               "text": "Vulnerabilities found in latest push",
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Ref*\n${{github.ref}}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Event*\n${{github.event_name}}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Actions URL*\nBuild and Push"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit*\n${{github.sha}}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*\nFailed trivy scan, see uploaded report"
+                    }
+                  ]
+                }
+              ]
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
