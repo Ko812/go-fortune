@@ -83,7 +83,7 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Actions URL*\nBuild and Push"
+                      "text": "*Actions URL*\n<a href='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'>${{ github.job }}</a>"
                     },
                     {
                       "type": "mrkdwn",
@@ -99,6 +99,10 @@ jobs:
                       "text": "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*\nFailed trivy scan, see uploaded report"
                     }
                   ]
+                },
+                {
+                  "type": "section",
+                  "text": "<p style="font-size:12px">Powered by rtCamp's GitHub Actions Library</p>"
                 }
               ]
             }
