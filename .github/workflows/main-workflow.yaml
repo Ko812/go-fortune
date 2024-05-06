@@ -68,8 +68,8 @@ jobs:
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
-          slack_token: ${{ secrets.SLACKTOKEN }}
-          channel_id: ${{ secrets.SLACKCHANNELID }}
+          slack_token: ${{ secrets.DIPSA58_CICD_BOT_TOKEN }}
+          channel_id: ${{ secrets.SLACK_TEST_SUBMISSION_CHANNEL_ID }}
           file_path: "${{github.workspace}}/${{github.ref_name}}/trivy.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, trivy scan vulnerabilities report"
