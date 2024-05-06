@@ -1,6 +1,6 @@
 name: Test Workflow
 
-on: workflow_dispatch
+on: push
 
 jobs:
   run-ubuntu-scripts:
