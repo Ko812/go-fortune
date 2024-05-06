@@ -32,7 +32,7 @@ jobs:
         id: run-trivy
         run: |
           cd ${{github.ref_name}}
-          trivy fs --format table --scanners vuln,secret,misconfig --severity HIGH --output trivy.txt .
+          trivy fs --format table --scanners vuln,secret,misconfig --severity ${{ vars.SCAN_SEV_LEVEL }} --output trivy.txt .
           if [ -s trivy.txt ]; then
             echo "vunerability_found=true" >> $GITHUB_OUTPUT
             git config --local user.email "action@github.com"
@@ -56,6 +56,10 @@ jobs:
         with:
           ref: ${{github.ref}}
           path: ${{github.workspace}}/${{github.ref_name}}
+      - name: Get Commit SHA substring
+        id: get-sha-substring
+        run: |
+          echo "cutid=$(echo ${{github.sha}} | cut -b 6)" >> $GITHUB_OUTPUT
       - name: Send Report to Slack Dipsa58 channel
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
@@ -87,7 +91,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Commit*\n${{github.sha}}"
+                      "text": "*Commit*\n<${{ github.repositoryUrl }}|${{steps.get-sha-substring.outputs.cutid}}>"
                     }
                   ]
                 },
@@ -110,13 +114,13 @@ jobs:
               ]
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
-          slack_token: ${{ secrets.SLACKTOKEN }}
-          channel_id: ${{ secrets.SLACKCHANNELID }}
+          slack_token: ${{ secrets.DIPSA58_CICD_BOT_TOKEN }}
+          channel_id: ${{ secrets.SLACK_TEST_SUBMISSION_CHANNEL_ID }}
           file_path: "${{github.workspace}}/${{github.ref_name}}/trivy.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, trivy scan vulnerabilities report"
@@ -160,6 +164,10 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
+      - name: Get Commit SHA substring
+        id: get-sha-substring
+        run: |
+          echo "cutid=$(echo ${{github.sha}} | cut -b 6)" >> $GITHUB_OUTPUT
       - name: Send custom JSON data to Slack workflow
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
@@ -178,7 +186,7 @@ jobs:
                             },
                             {
                                 "type": "mrkdwn",
-                                "text": "*Event*\n${{github.sha}}"
+                                "text": "*Event*\n${{github.event_name}}"
                             }
                         ]
                     },
@@ -187,11 +195,11 @@ jobs:
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": "*Actions URL*\nBuild and Push"
+                                "text": "*Actions URL*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{github.job}}>"
                             },
                             {
                                 "type": "mrkdwn",
-                                "text": "*Commit*\n${{github.event.head_commit.message}}"
+                                "text": "*Commit*\n<${{github.repositoryUrl}}|${{ steps.get-sha-substring.outputs.cutid}}>"
                             }
                         ]
                     },
@@ -209,7 +217,7 @@ jobs:
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": "*Name:* Kevin Oh"
+                                "text": "*Name:* <@${{ secrets.SLACK_USERNAME }}>"
                             }
                         ]
                     },
@@ -236,7 +244,7 @@ jobs:
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": "*Git:* ${{github.repository}}"
+                                "text": "*Git:* <${{ github.server_url }}/${{ github.repository}}>"
                             }
                         ]
                     },
@@ -245,12 +253,21 @@ jobs:
                         "fields": [
                             {
                                 "type": "mrkdwn",
-                                "text": "*Image:* https://hub.docker/repository/docker/ko812/go-fortune"
+                                "text": "*Image:* <https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUBUSERNAME }}/go-fortune/general>"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "Powered By rtCamp's GitHub Actions Library"
                             }
                         ]
                     }
                 ]
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
