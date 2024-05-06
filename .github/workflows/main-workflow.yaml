@@ -59,7 +59,7 @@ jobs:
       - name: Get Commit SHA substring
         id: get-sha-substring
         run: |
-          echo "cutid=$(echo ${{github.sha}} | cut -b 6)" >> $GITHUB_OUTPUT
+          echo "cutid=$(echo ${{github.sha}} | head -c 6)" >> $GITHUB_OUTPUT
       - name: Send Report to Slack Dipsa58 channel
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
@@ -114,13 +114,13 @@ jobs:
               ]
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
-          slack_token: ${{ secrets.DIPSA58_CICD_BOT_TOKEN }}
-          channel_id: ${{ secrets.SLACK_TEST_SUBMISSION_CHANNEL_ID }}
+          slack_token: ${{ secrets.SLACKTOKEN }}
+          channel_id: ${{ secrets.SLACKCHANNELID }}
           file_path: "${{github.workspace}}/${{github.ref_name}}/trivy.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, trivy scan vulnerabilities report"
@@ -167,7 +167,7 @@ jobs:
       - name: Get Commit SHA substring
         id: get-sha-substring
         run: |
-          echo "cutid=$(echo ${{github.sha}} | cut -b 6)" >> $GITHUB_OUTPUT
+          echo "cutid=$(echo ${{github.sha}} | head -c 6)" >> $GITHUB_OUTPUT
       - name: Send custom JSON data to Slack workflow
         id: slack
         uses: slackapi/slack-github-action@v1.26.0
@@ -239,5 +239,5 @@ jobs:
                 ]
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
