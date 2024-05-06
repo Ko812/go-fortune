@@ -116,6 +116,15 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: Notify to Slack using rtCamp
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mytunnel
+          SLACK_USERNAME: SL Kevin Oh
+          SLACK_TITLE: Post Title
+          SLACK_MESSAGE: "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*\nFailed trivy scan, see uploaded report"
+          SLACK_WEBHOOK: ${{ secrets.MYTUNNEL }}
+          SLACK_FOOTER: Powered By rtCamp's GitHub Actions Library
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
