@@ -17,4 +17,4 @@ jobs:
           ls
           cd test-branch
           ls
-          echo $(cat fortune.txt | cut -b 6)
+          echo $(cat fortune.txt | head -c 6)
