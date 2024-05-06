@@ -63,7 +63,7 @@ jobs:
           SLACK_USERNAME: SL Kevin Oh
           SLACK_TITLE: "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*"
           SLACK_MESSAGE: "Failed trivy scan, see uploaded report"
-          SLACK_WEBHOOK: ${{ secrets.MYTUNNEL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
           SLACK_FOOTER: <https://github.com/rtCamp/action-slack-notify|Powered By rtCamp's GitHub Actions Library>
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
@@ -113,80 +113,12 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      - name: Get Commit SHA substring
-        id: get-sha-substring
-        run: |
-          echo "cutid=$(echo ${{github.sha}} | head -c 6)" >> $GITHUB_OUTPUT
-      - name: Send custom JSON data to Slack workflow
-        id: slack
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload-file-path-parsed: false
-          payload: |
-            {
-                "text": "Push commit triggered workflow",
-                "blocks": [
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Ref*\n${{github.ref}}"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Event*\n${{github.event_name}}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Actions URL*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{github.job}}>"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Commit*\n<${{github.repositoryUrl}}|${{ steps.get-sha-substring.outputs.cutid}}>"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Image build and signed*"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": "*Name:* <@${{ secrets.SLACK_USERNAME }}>"
-                    },
-                    {
-                        "type": "section",
-                        "text": "*Matriculation:* A0023945E"
-                    },
-                    {
-                        "type": "section",
-                        "text": "*Email:* ohsl265@gmail.com"
-                    },
-                    {
-                        "type": "section",
-                        "text": "*Git:* <${{ github.server_url }}/${{ github.repository}}>"
-                    },
-                    {
-                        "type": "section",
-                        "text": "*Image:* <https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUBUSERNAME }}/go-fortune/general>"
-                    },
-                    {
-                        "type": "section",
-                        "text": "Powered By rtCamp's GitHub Actions Library"
-                    }
-                ]
-            }
+      - name: Notify to Slack using rtCamp
+        uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.MYTUNNEL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          SLACK_CHANNEL: mytunnel
+          SLACK_USERNAME: SL Kevin Oh
+          SLACK_TITLE: "*Image Built and signed*"
+          SLACK_MESSAGE: "*Name*: SL Kevin Oh\n*Matriculation*: A0023945E\n*Email*: OHSL265@GMAIL.COM\n*Git*:<${{github.repositoryUrl}}>\n*Image*:<https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUBUSERNAME }}/go-fortune/general>"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
+          SLACK_FOOTER: <https://github.com/rtCamp/action-slack-notify|Powered By rtCamp's GitHub Actions Library>
