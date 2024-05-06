@@ -101,8 +101,11 @@ jobs:
                   ]
                 },
                 {
-                  "type": "mrkdwn",
-                  "text": "Powered by rtCamp's GitHub Actions Library"
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Powered by rtCamp's GitHub Actions Library"
+                  }
                 }
               ]
             }
