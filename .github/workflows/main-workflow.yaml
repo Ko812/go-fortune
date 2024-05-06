@@ -214,57 +214,27 @@ jobs:
                     },
                     {
                         "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Name:* <@${{ secrets.SLACK_USERNAME }}>"
-                            }
-                        ]
+                        "text": "*Name:* <@${{ secrets.SLACK_USERNAME }}>"
                     },
                     {
                         "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Matriculation:* A0023945E"
-                            }
-                        ]
+                        "text": "*Matriculation:* A0023945E"
                     },
                     {
                         "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Email:* ohsl265@gmail.com"
-                            }
-                        ]
+                        "text": "*Email:* ohsl265@gmail.com"
                     },
                     {
                         "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Git:* <${{ github.server_url }}/${{ github.repository}}>"
-                            }
-                        ]
+                        "text": "*Git:* <${{ github.server_url }}/${{ github.repository}}>"
                     },
                     {
                         "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Image:* <https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUBUSERNAME }}/go-fortune/general>"
-                            }
-                        ]
+                        "text": "*Image:* <https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUBUSERNAME }}/go-fortune/general>"
                     },
                     {
                         "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "Powered By rtCamp's GitHub Actions Library"
-                            }
-                        ]
+                        "text": "Powered By rtCamp's GitHub Actions Library"
                     }
                 ]
             }
