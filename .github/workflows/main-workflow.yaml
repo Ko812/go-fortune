@@ -83,7 +83,7 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Actions URL*\n<a href='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'>${{ github.job }}</a>"
+                      "text": "*Actions URL*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{github.job}}>",
                     },
                     {
                       "type": "mrkdwn",
