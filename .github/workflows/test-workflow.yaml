@@ -1,0 +1,20 @@
+name: Test Workflow
+
+on: workflow_dispatch
+
+jobs:
+  run-ubuntu-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.ref}}
+          path: ${{github.workspace}}/${{github.ref_name}}
+      - name: Run Ubuntu Script
+        id: slack
+        run: |
+          ls
+          cd test-branch
+          ls
+          echo $(cat fortune.txt | cut -b 6)
