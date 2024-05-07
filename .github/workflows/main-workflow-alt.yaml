@@ -32,6 +32,7 @@ jobs:
           scan-type: "fs"
           format: "table"
           output: "trivy.txt"
+          exit_code: 1
           severity: "HIGH"
       - name: Set Output When Vulnerabilities Found
         if: steps.run-trivy.outcome == 'failure'
