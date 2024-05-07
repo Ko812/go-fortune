@@ -39,6 +39,12 @@ jobs:
         run: |
           if [ -s trivy.txt ]; then
             echo "vulnerability_found=true" >> $GITHUB_OUTPUT
+            git config --local user.email "action@github.com"
+            git config --local user.name "github-actions"
+            git add trivy.txt
+            cat trivy.txt
+            git commit -m "Add changes" -a
+            git push -u origin ${{github.ref_name}}
           else
             echo "no_vulnerability_found=true" >> $GITHUB_OUTPUT
           fi
