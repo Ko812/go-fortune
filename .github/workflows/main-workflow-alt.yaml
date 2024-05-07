@@ -67,13 +67,13 @@ jobs:
           SLACK_USERNAME: SL Kevin Oh
           SLACK_TITLE: "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*"
           SLACK_MESSAGE: "Failed trivy scan, see uploaded report"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_SUBMISSION_WEBHOOK }}
           SLACK_FOOTER: <https://github.com/rtCamp/action-slack-notify|Powered By rtCamp's GitHub Actions Library>
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
           slack_token: ${{ secrets.DIPSA58_CICD_BOT_TOKEN }}
-          channel_id: ${{ secrets.SLACK_TEST_SUBMISSION_CHANNEL_ID }}
+          channel_id: ${{ secrets.SLACK_SUBMISSION_CHANNEL_ID }}
           file_path: "${{github.workspace}}/${{github.ref_name}}/trivy.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, trivy scan vulnerabilities report"
@@ -124,5 +124,5 @@ jobs:
           SLACK_USERNAME: SL Kevin Oh
           SLACK_TITLE: "*Image Built and Signed*"
           SLACK_MESSAGE: "*Name*: <@${{ secrets.SLACK_USERNAME  }}>\n*Matriculation*: A0023945E\n*Email*: E1332822@u.nus.edu\n*Git*: <${{github.repositoryUrl}}>\n*Image*: <https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUBUSERNAME }}/go-fortune/general>"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_SUBMISSION_WEBHOOK }}
           SLACK_FOOTER: <https://github.com/rtCamp/action-slack-notify|Powered By rtCamp's GitHub Actions Library>
