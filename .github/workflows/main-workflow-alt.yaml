@@ -33,7 +33,7 @@ jobs:
           format: "table"
           output: "trivy.txt"
           exit_code: 1
-          severity: "HIGH"
+          severity: "CRITICAL"
       - name: Set Output When Vulnerabilities Found
         id: set-scan-result
         run: |
@@ -44,7 +44,6 @@ jobs:
             git config --local user.email "action@github.com"
             git config --local user.name "github-actions"
             git add trivy.txt
-            cat trivy.txt
             git commit -m "Add changes" -a
             git push -u origin ${{github.ref_name}}
           else
@@ -68,13 +67,13 @@ jobs:
           SLACK_USERNAME: SL Kevin Oh
           SLACK_TITLE: "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*"
           SLACK_MESSAGE: "Failed trivy scan, see uploaded report"
-          SLACK_WEBHOOK: ${{ secrets.MYTUNNEL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
           SLACK_FOOTER: <https://github.com/rtCamp/action-slack-notify|Powered By rtCamp's GitHub Actions Library>
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
-          slack_token: ${{ secrets.SLACKTOKEN }}
-          channel_id: ${{ secrets.SLACKCHANNELID }}
+          slack_token: ${{ secrets.DIPSA58_CICD_BOT_TOKEN }}
+          channel_id: ${{ secrets.SLACK_TEST_SUBMISSION_CHANNEL_ID }}
           file_path: "${{github.workspace}}/${{github.ref_name}}/trivy.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, trivy scan vulnerabilities report"
@@ -125,5 +124,5 @@ jobs:
           SLACK_USERNAME: SL Kevin Oh
           SLACK_TITLE: "*Image Built and signed*"
           SLACK_MESSAGE: "*Name*: <@${{ secrets.SLACK_USERNAME  }}>\n*Matriculation*: A0023945E\n*Email*: E1332822@u.nus.edu\n*Git*:<${{github.repositoryUrl}}>\n*Image*:<https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUBUSERNAME }}/go-fortune/general>"
-          SLACK_WEBHOOK: ${{ secrets.MYTUNNEL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_TEST_SUBMISSION_WEBHOOK }}
           SLACK_FOOTER: <https://github.com/rtCamp/action-slack-notify|Powered By rtCamp's GitHub Actions Library>
