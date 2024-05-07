@@ -37,17 +37,21 @@ jobs:
       - name: Set Output When Vulnerabilities Found
         id: set-scan-result
         run: |
-          if [ -s trivy.txt ]; then
-            echo "vulnerability_found=true" >> $GITHUB_OUTPUT
-            git config --local user.email "action@github.com"
-            git config --local user.name "github-actions"
-            git add trivy.txt
-            cat trivy.txt
-            git commit -m "Add changes" -a
-            git push -u origin ${{github.ref_name}}
-          else
-            echo "no_vulnerability_found=true" >> $GITHUB_OUTPUT
-          fi
+          pwd
+          ls
+          mv trivy.txt ${{github.ref_name}}/trivy.txt
+          cd ${{ github.ref_name }}
+          # if [ -s trivy.txt ]; then
+          #   echo "vulnerability_found=true" >> $GITHUB_OUTPUT
+          #   git config --local user.email "action@github.com"
+          #   git config --local user.name "github-actions"
+          #   git add trivy.txt
+          #   cat trivy.txt
+          #   git commit -m "Add changes" -a
+          #   git push -u origin ${{github.ref_name}}
+          # else
+          #   echo "no_vulnerability_found=true" >> $GITHUB_OUTPUT
+          # fi
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
