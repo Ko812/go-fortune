@@ -38,13 +38,13 @@ jobs:
         if: steps.run-trivy.outcome == 'failure'
         run: |
           echo "Vulnerability Found"
-          echo "vunerability_found=true" >> $GITHUB_OUTPUT
+          echo "vulnerability_found=true" >> $GITHUB_OUTPUT
           cat trivy.txt
       - name: Set Output When No Vulnerabilities Found
         if: steps.run-trivy.outcome == 'success'
         run: |
           echo "No Vulnerability Found"
-          echo "no_vunerability_found=true" >> $GITHUB_OUTPUT
+          echo "no_vulnerability_found=true" >> $GITHUB_OUTPUT
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
