@@ -16,8 +16,8 @@ jobs:
     if: "!contains( github.event.head_commit.message, '#NORUN')"
     # steps in this job
     outputs:
-      VunerabilityFound: ${{ steps.run-trivy.outputs.vunerability_found }}
-      NoVulnerabilityFound: ${{steps.run-trivy.outputs.no_vunerability_found }}
+      VulnerabilityFound: ${{ steps.set-scan-result.outputs.vulnerability_found }}
+      NoVulnerabilityFound: ${{steps.set-scan-result.outputs.no_vulnerability_found }}
     steps:
       - name: Checkout
         id: Checkout-step
@@ -35,20 +35,16 @@ jobs:
           exit_code: 1
           severity: "HIGH"
       - name: Set Output When Vulnerabilities Found
-        if: steps.run-trivy.outcome == 'failure'
+        id: set-scan-result
         run: |
-          echo "Vulnerability Found"
-          echo "vulnerability_found=true" >> $GITHUB_OUTPUT
-          cat trivy.txt
-      - name: Set Output When No Vulnerabilities Found
-        if: steps.run-trivy.outcome == 'success'
-        run: |
-          echo "No Vulnerability Found"
-          echo "no_vulnerability_found=true" >> $GITHUB_OUTPUT
+          if [ -s trivy.txt ]; then
+            echo "vulnerability_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "no_vulnerability_found=true" >> $GITHUB_OUTPUT
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
-    if: needs.scan-vulnerabilities.outputs.VunerabilityFound
+    if: needs.scan-vulnerabilities.outputs.VulnerabilityFound
     steps:
       - name: Checkout
         id: Checkout-step
