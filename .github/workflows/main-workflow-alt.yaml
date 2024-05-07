@@ -11,7 +11,7 @@ jobs:
   scan-vulnerabilities:
     name: Scan Vulnerabilities
     # runner
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions: write-all
     if: "!contains( github.event.head_commit.message, '#NORUN')"
     # steps in this job
@@ -25,26 +25,25 @@ jobs:
         with:
           ref: ${{github.ref}}
           path: ${{github.workspace}}/${{github.ref_name}}
-      - name: Install Trivy
-        run: |
-          brew install trivy
-      - name: Manual run trivy scan job
+      - name: Run trivy scan
         id: run-trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          format: "table"
+          output: "trivy.txt"
+          severity: "HIGH"
+      - name: Set Output When Vulnerabilities Found
+        if: steps.run-trivy.outcome == 'failure'
         run: |
-          cd ${{github.ref_name}}
-          trivy fs --format table --scanners vuln,secret,misconfig --severity ${{ vars.SCAN_SEV_LEVEL }} --output trivy.txt .
-          if [ -s trivy.txt ]; then
-            echo "vunerability_found=true" >> $GITHUB_OUTPUT
-            git config --local user.email "action@github.com"
-            git config --local user.name "github-actions"
-            git add trivy.txt
-            git commit -m "Add changes" -a
-            git push -u origin ${{github.ref_name}} 
-            SHA=$(git rev-parse HEAD)
-            echo "::set-output name=commitid::$SHA"
-          else
-            echo "no_vunerability_found=true" >> $GITHUB_OUTPUT
-          fi
+          echo "Vulnerability Found"
+          echo "vunerability_found=true" >> $GITHUB_OUTPUT
+          cat trivy.txt
+      - name: Set Output When No Vulnerabilities Found
+        if: steps.run-trivy.outcome == 'success'
+        run: |
+          echo "No Vulnerability Found"
+          echo "no_vunerability_found=true" >> $GITHUB_OUTPUT
   Start-Reporting-Vulnerabilities:
     runs-on: ubuntu-latest
     needs: scan-vulnerabilities
@@ -63,13 +62,13 @@ jobs:
           SLACK_USERNAME: SL Kevin Oh
           SLACK_TITLE: "*Scan failed - ${{ secrets.DOCKERUSERNAME }}*"
           SLACK_MESSAGE: "Failed trivy scan, see uploaded report"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_SUBMISSION_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.MYTUNNEL }}
           SLACK_FOOTER: <https://github.com/rtCamp/action-slack-notify|Powered By rtCamp's GitHub Actions Library>
       - name: Upload report to Slack
         uses: MeilCli/slack-upload-file@v4
         with:
-          slack_token: ${{ secrets.DIPSA58_CICD_BOT_TOKEN }}
-          channel_id: ${{ secrets.SLACK_SUBMISSION_CHANNEL_ID }}
+          slack_token: ${{ secrets.SLACKTOKEN }}
+          channel_id: ${{ secrets.SLACKCHANNELID }}
           file_path: "${{github.workspace}}/${{github.ref_name}}/trivy.txt"
           file_type: "text"
           initial_comment: "Post by slack-upload-file, trivy scan vulnerabilities report"
@@ -120,5 +119,5 @@ jobs:
           SLACK_USERNAME: SL Kevin Oh
           SLACK_TITLE: "*Image Built and signed*"
           SLACK_MESSAGE: "*Name*: <@${{ secrets.SLACK_USERNAME  }}>\n*Matriculation*: A0023945E\n*Email*: E1332822@u.nus.edu\n*Git*:<${{github.repositoryUrl}}>\n*Image*:<https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUBUSERNAME }}/go-fortune/general>"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_SUBMISSION_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.MYTUNNEL }}
           SLACK_FOOTER: <https://github.com/rtCamp/action-slack-notify|Powered By rtCamp's GitHub Actions Library>
